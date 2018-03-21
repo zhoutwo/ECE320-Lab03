@@ -371,11 +371,15 @@ int main(void) {
     double R, Rin[5] = {0.0, 0.0, 0.0, 0.0, 0.0};
     double Rout[5] = {0.0, 0.0, 0.0, 0.0, 0.0};
     double A[5] = {1.0, -2.3695, 2.3140, -1.0547, 0.1874}, B[5] = {0.0048, 0.0193, 0.0289, 0.0193, 0.0048};
-    int Nr = 5, Ny = 5;
+    double Ac[5] = {1.0000, -0.6000, 0.0, 0.0, -0.4000};
+    double Bc[5] = {18.9722, -18.6022, 0.0, 0.0, 0.0};
+    double error_in[5] = {0.0, 0.0, 0.0, 0.0, 0.0};
+    double u_out[5] = {0.0, 0.0, 0.0, 0.0, 0.0};
+    int Nr = 5, Ny = 5, Nu = 5;
     double AD_scale = 0.1688;
-    double kp = 1.0;
+    double kp = 5.0;
     double reference_scaling = 1.0;
-    double MAX_DELTA_U = 500.0;
+    double MAX_DELTA_U = 1000.0;
     double last_u = 0.0;
 
     // set up the external interrupt
@@ -490,8 +494,8 @@ int main(void) {
 //        else if ((time >= 0.5) & (time < 5.5)) R = 10.0;
 //        else if ((time >= 5.5) & (time < 10.5)) R = 25.0;
 //        else if (time >= 10.5) R = 40.0;
-//        R = R *  referecne_scaling;
-        R = 75.0;
+//        R = 75.0;
+        R = R * reference_scaling;
 
         /*********************************************/
         //  implement the FEEDBACK (H) functions
@@ -528,8 +532,8 @@ int main(void) {
         //
         /*********************************************/
 
-        error = R; // use this for open loop control
-//        error = R - Y;  // use this for closed loop control
+//        error = R; // use this for open loop control
+        error = R - Y;  // use this for closed loop control
 
         /*********************************************/
         //  implement the CONTROLLER (Gc) functions
@@ -537,7 +541,13 @@ int main(void) {
         //  
         /*********************************************/
 
-        u = kp * error;
+        update_array(u_out, Nu);
+        update_array(error_in, Nu);
+        error_in[0] = error;
+        filter(Ac, Bc, error_in, u_out, Nu);
+        u_out[0] = max(0.0, u_out[0]);
+        u_out[0] = min(u_out[0], 1023);
+        u = u_out[0];
 
         /*********************************************/
         // implement CONYTROl EFFORT CONVERSION
