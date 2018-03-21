@@ -375,6 +375,8 @@ int main(void) {
     double AD_scale = 0.1688;
     double kp = 1.0;
     double reference_scaling = 1.0;
+    double MAX_DELTA_U = 500.0;
+    double last_u = 0.0;
 
     // set up the external interrupt
 
@@ -488,8 +490,8 @@ int main(void) {
 //        else if ((time >= 0.5) & (time < 5.5)) R = 10.0;
 //        else if ((time >= 5.5) & (time < 10.5)) R = 25.0;
 //        else if (time >= 10.5) R = 40.0;
-//        R = R *  reference_scaling;
-        R = 50.0;
+//        R = R *  referecne_scaling;
+        R = 75.0;
 
         /*********************************************/
         //  implement the FEEDBACK (H) functions
@@ -553,8 +555,10 @@ int main(void) {
         u = u * convert_to_duty / AD_scale; // convert back to a pwm signal
 //        if (error > 0.0) u = 0.2 * MAX_DUTY;
 //        else u = 0.0;
-        u = min(u, MAX_DUTY); // don't let u get too large
-        u = max(u, 0.0); // don't let u get negative, 
+        u = min(u, last_u+MAX_DELTA_U);
+        u = min(u, MAX_DUTY);
+        u = max(u,0.0);
+        last_u = u;
 
         dutycycle = (unsigned int) u;
 
@@ -576,7 +580,7 @@ int main(void) {
             int_Y = (int) 100*Y;
             int_u = (int) u;
 
-            printf("%8d %8d %d %8d\n", int_time, int_R, int_u, int_Y);
+            printf("%8d %8d %8d %8d\n", int_time, int_R, int_u, int_Y);
             count = MAX_COUNT;
         }   
         // save the current positions
