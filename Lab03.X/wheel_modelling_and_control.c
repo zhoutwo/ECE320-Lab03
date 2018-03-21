@@ -373,8 +373,8 @@ int main(void) {
     double A[5] = {1.0, -2.3695, 2.3140, -1.0547, 0.1874}, B[5] = {0.0048, 0.0193, 0.0289, 0.0193, 0.0048};
     int Nr = 5, Ny = 5;
     double AD_scale = 0.1688;
-    double kp = 2.0;
-    double reference_scaling = 1.60;
+    double kp = 1.0;
+    double reference_scaling = 1.0;
 
     // set up the external interrupt
 
@@ -488,7 +488,8 @@ int main(void) {
 //        else if ((time >= 0.5) & (time < 5.5)) R = 10.0;
 //        else if ((time >= 5.5) & (time < 10.5)) R = 25.0;
 //        else if (time >= 10.5) R = 40.0;
-        R = R *  reference_scaling;
+//        R = R *  reference_scaling;
+        R = 50.0;
 
         /*********************************************/
         //  implement the FEEDBACK (H) functions
@@ -525,8 +526,8 @@ int main(void) {
         //
         /*********************************************/
 
-        //error = R; // use this for open loop control
-        error = R - Y;  // use this for closed loop control
+        error = R; // use this for open loop control
+//        error = R - Y;  // use this for closed loop control
 
         /*********************************************/
         //  implement the CONTROLLER (Gc) functions
@@ -573,8 +574,9 @@ int main(void) {
             int_time = (int) (100.0 * time); // convert for printout
             int_R = (int) 100*R/reference_scaling;
             int_Y = (int) 100*Y;
+            int_u = (int) u;
 
-            printf("%8d %8d %8d\n", int_time, int_R, int_Y);
+            printf("%8d %8d %d %8d\n", int_time, int_R, int_u, int_Y);
             count = MAX_COUNT;
         }   
         // save the current positions
