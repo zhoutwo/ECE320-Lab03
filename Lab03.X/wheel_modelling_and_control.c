@@ -546,9 +546,6 @@ int main(void) {
         error_in[0] = error;
         filter(Ac, Bc, error_in, u_out, Nu);
         u = u_out[0];
-        u = max(0.0, u);
-        //u_out[0] = min(u_out[0], 1023);
-        //u = u_out[0];
 
         /*********************************************/
         // implement CONYTROl EFFORT CONVERSION
